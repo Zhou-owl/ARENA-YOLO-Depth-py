@@ -30,8 +30,7 @@ def readframe():
         whether, frame = video_caputre.read()
  
     # 释放视频流
-    video_caputre.re
-    lease()
+    video_caputre.release()
  
     print("video to images done!")
 
