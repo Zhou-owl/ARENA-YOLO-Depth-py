@@ -11,7 +11,7 @@ from ultralytics import YOLO
 
 from util import *
 
-with np.load("../intrinsic_calib.npz") as X:
+with np.load("./intrinsic_calib.npz") as X:
     mtx, dist = [X[i] for i in ('mtx', 'dist')]
 # train
 
@@ -37,8 +37,8 @@ with np.load("../intrinsic_calib.npz") as X:
 
 # frames = []
 # # Load a model
-model_tripod = YOLO('../runs/detect/train/weights/best.pt')  
-model_basic = YOLO(('../yolov8l.pt') )  
+model_tripod = YOLO('./runs/detect/train/weights/best.pt')  
+model_basic = YOLO(('./yolov8l.pt') )  
 at_detector = Detector(families='tag36h11')
 
 # source = '/home/sc/yongqi/yolo/3.gif'
@@ -52,7 +52,7 @@ at_detector = Detector(families='tag36h11')
 
 
 
-capture_root = '../capture'
+capture_root = './capture'
 layout = [
     [sg.Image(filename='', key='raw',size=(500,400))],
     [sg.Text('fps = 0',  key="text")],
