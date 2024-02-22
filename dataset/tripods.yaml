@@ -1,0 +1,9 @@
+# Tripods
+train: /home/sc/yongqi/yolo/dataset/tripods/train
+val: /home/sc/yongqi/yolo/dataset/tripods/valid 
+test: /home/sc/yongqi/yolo/dataset/tripods/test
+
+# Classes
+names:
+  0: Tripods
+
