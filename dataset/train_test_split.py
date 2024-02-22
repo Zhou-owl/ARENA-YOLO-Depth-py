@@ -3,7 +3,7 @@ import random
 import shutil
 
 # 原数据集目录
-root_dir = 'dataset/tripods'
+root_dir = './tripods'
 # 划分比例
 train_ratio = 0.8
 valid_ratio = 0.1
@@ -13,7 +13,7 @@ test_ratio = 0.1
 random.seed(42)
 
 # 拆分后数据集目录
-split_dir = 'dataset/tripods'
+split_dir = './tripods'
 os.makedirs(os.path.join(split_dir, 'train/images'), exist_ok=True)
 os.makedirs(os.path.join(split_dir, 'train/labels'), exist_ok=True)
 os.makedirs(os.path.join(split_dir, 'valid/images'), exist_ok=True)
