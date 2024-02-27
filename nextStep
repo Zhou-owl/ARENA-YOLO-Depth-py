@@ -6,7 +6,7 @@
         if label appear in other cams:
             for same label in each other cams:
                 while(all same label):
-                    compute pointcloud distance
+                    compute pointcloud distance (downsample?)
                     if distance < threshold && argmin(all same label):
                         instance <label, id> append pointcloud volumn_bounding
                         cam.delete this
