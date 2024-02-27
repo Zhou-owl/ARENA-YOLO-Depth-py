@@ -1,0 +1,52 @@
+1. Multicam:
+    Assumption: objects are detected in >1 cameras
+    Each camera generate a pointcloud in world coordinate, which has a corresponding label
+    global_list <label, id>
+    for each label in each cam:
+        if label appear in other cams:
+            for same label in each other cams:
+                while(all same label):
+                    compute pointcloud distance
+                    if distance < threshold && argmin(all same label):
+                        instance <label, id> append pointcloud volumn_bounding
+                        cam.delete this
+        else:
+            delete this
+    global_list <label, id> frequency * (pointclouds, volumn_boundings)
+
+    for id in global_list:
+        point_cloud = merge all pointcloud
+        3d_bounding = silhouette(volum_boundings)
+        cut out invalid points
+        return feature
+
+
+    tracking filter on each feature
+
+2. generate model
+
+for id in global_list:
+    if model_list[<label,id>] == none
+        nerf generate 3d model using multi view -> expand a little to include more points?
+        use the model shape to constrain pointclouds
+        cut out invalid points
+        return feature
+    
+tracking filter on each feature
+
+3. orientation
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+    
