@@ -136,6 +136,7 @@ while True:
                     normal = np.array([[0,0,1]])
                     plane_x0 = np.array([[1,0,0]]).T
                     t = (np.dot(normal, origin_w)-np.dot(normal,plane_x0))/np.dot(normal,dir_w)
+                    print(t)
                     intersection_w = (origin_w - t * dir_w)
                     intersection_w = np.around(intersection_w,decimals=2)
     
