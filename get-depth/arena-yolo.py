@@ -63,8 +63,8 @@ def periodic():
     height = box.data.scale.y
     if type(x)==float and type(y)==float and type(z)==float:
         print(random.randint(0,10))
-        box.update_attributes(position=Position(-x,y + height*0.5,-z))
-        my_text.update_attributes(position=Position(-x,y + height*0.5 + 0.5,-z))
+        box.update_attributes(position=Position(-x,y,-z))
+        my_text.update_attributes(position=Position(-x,y + 0.5,-z))
 
         scene.update_object(box)
         scene.update_object(my_text)

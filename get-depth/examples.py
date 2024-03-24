@@ -284,23 +284,23 @@ class DeviceManager:
         self.L500_config.disable_all_streams()
 
 
-if __name__ == "__main__":
-    try:
-        c = rs.config()
-        c.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+# if __name__ == "__main__":
+#     try:
+#         c = rs.config()
+#         c.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
 
-        c.enable_stream(rs.stream.color, 640, 480, rs.format.rgb8, 30)
-        device_manager = DeviceManager(rs.context(), c)
-        device_manager.enable_all_devices()
-        for k in range(150):
-            frames = device_manager.poll_frames()
-        device_manager.enable_emitter(True)
-        device_extrinsics = device_manager.get_depth_to_color_extrinsics(frames)
-        device_intrinsics = device_manager.get_device_intrinsics(frames)
-        print('device_extrinsics:',device_extrinsics)
-        print('device_intrinsics:', device_intrinsics)
-    finally:
-        device_manager.disable_streams()
+#         c.enable_stream(rs.stream.color, 640, 480, rs.format.rgb8, 30)
+#         device_manager = DeviceManager(rs.context(), c)
+#         device_manager.enable_all_devices()
+#         for k in range(150):
+#             frames = device_manager.poll_frames()
+#         device_manager.enable_emitter(True)
+#         device_extrinsics = device_manager.get_depth_to_color_extrinsics(frames)
+#         device_intrinsics = device_manager.get_device_intrinsics(frames)
+#         print('device_extrinsics:',device_extrinsics)
+#         print('device_intrinsics:', device_intrinsics)
+#     finally:
+#         device_manager.disable_streams()
 
 
 

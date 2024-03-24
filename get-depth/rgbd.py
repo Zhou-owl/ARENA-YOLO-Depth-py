@@ -8,18 +8,16 @@ import PySimpleGUI as sg  # pip install pysimplegui
 from dt_apriltags import Detector
 from PIL import Image
 from ultralytics import YOLO
-
+from oc_sort import OCSort
 from util import *
 from examples import *
-
-
 # frames = []
 # # Load a model
 model_tripod = YOLO('./runs/detect/train/weights/best.pt')  
-model_basic = YOLO(('./yolov8l-seg.pt') )  
+model_basic = YOLO('./yolov8l-seg.pt')  
 at_detector = Detector(families='tag36h11')
 
-
+tracker = OCSort(det_thresh=0.7,iou_threshold=0.5)
 capture_root = './capture'
 
 
@@ -69,7 +67,7 @@ def init_params():
         np.savez(cam+".npz", E_dr=E_dr, I_d_mtx=I_d_mtx, I_d_dist=I_d_dist,I_c_dist=I_c_dist,I_c_mtx=I_c_mtx)
 
 
-init_params()
+#init_params()
 
 def load_multicam_params():
     matrix_dict = {}
@@ -94,6 +92,7 @@ layout = [
     [sg.Checkbox('Tripod', key='tripod')],
     [sg.Checkbox('FindTag', key='tag')],
     [sg.Checkbox('Chair (check Tag and uncheck Calib)', key='chair')],
+    [sg.Checkbox('tracker', key='tracker')],
     [sg.Checkbox('Test', key='test')],
     [sg.Button('Capture')],
     [sg.Button('Exit')]
@@ -109,8 +108,9 @@ window = sg.Window('camera',
 
 
 
-cam_name = '241122304996'
-
+cam1_name = '241122304996'
+cam2_name = '225322300120'
+params = load_multicam_params()
 # start steaming
 single_cam = pipeline.start(config)
 
@@ -136,14 +136,14 @@ while True:
     depth_colormap_dim = depth_colormap.shape
     color_colormap_dim = color_image.shape
 
-    E_dr, I_d_mtx, I_d_dist, I_c_dist, I_c_mtx = load_cam_params(cam_name)
+    E_dr, I_d_mtx, I_d_dist, I_c_dist, I_c_mtx = load_cam_params(cam1_name)
 
 
     # model prediction
     if values['tripod']:
         pred = model_tripod(color_image, conf=0.4, iou=0.1)
     else:
-        pred = model_basic(color_image)
+        pred = model_basic(color_image,iou=0.2)
 
     marked = pred[0].plot()  
     boxes = pred[0].boxes.xyxy.tolist()
@@ -198,6 +198,20 @@ while True:
 
         print('t:',t_dist)
 
+    if values['tracker']:
+        np_box = np.array(boxes)
+        np_score = np.array(confidences).reshape((-1,1))
+        np_class = np.array(classes).reshape((-1,1))
+        detected_objects = np.concatenate((np_box,np_score,np_class), axis=1)
+        tracked_objects = tracker.update(detected_objects)
+        for idx,obj in enumerate(tracked_objects):
+            x1,y1,x2,y2,tracked_id,cla,conf =  obj
+            cv2.rectangle(depth_colormap,(int(x1),int(y1)),(int(x2),int(y2)),color=(255,0,0),thickness=3)
+            cv2.putText(depth_colormap,str(tracked_id),(int(x2),int(y2)),thickness=2,fontFace=cv2.FONT_HERSHEY_SIMPLEX,fontScale=3,color=(0,0,255))
+
+            
+
+            
 
     if values['chair']:
         for box, label, conf, mask in zip(boxes, classes, confidences, masks):
@@ -288,7 +302,7 @@ while True:
 
 
 
-
+        
     
     if values['tag']:
 
