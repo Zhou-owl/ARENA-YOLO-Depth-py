@@ -13,15 +13,13 @@ from examples import *
 
 is_first_run = False
 conf_thred = 0.5
+
 # define model
 model_tripod = YOLO('./runs/detect/train/weights/best.pt')  
 model_basic = YOLO('./yolov8l-seg.pt')  
 
 # init tag detector
 at_detector = Detector(families='tag36h11')
-
-# init oc-sort tracker
-tracker = OCSort(det_thresh=0.7,iou_threshold=0.5)
 
 # init cameras 
 device_list = rs.context()
@@ -30,7 +28,8 @@ device_serials = [i.get_info(rs.camera_info.serial_number) for i in device_list.
 
 # init camera intrinsic params
 def init_params():
-    device_manager = DeviceManager(device_list, omni_config)
+    default_config = rs.config()
+    device_manager = DeviceManager(device_list, default_config)
     device_manager.enable_all_devices()
     for k in range(150):
         frames = device_manager.poll_frames()
@@ -87,7 +86,7 @@ layout = [
     [sg.Checkbox('FindTag', key='tag')],
     [sg.Checkbox('Detect Objects', key='detect')],
     [sg.Checkbox('Chair only', key='chair')],
-    [sg.Checkbox('tracker', key='tracker')],
+    [sg.Checkbox('Single tracker', key='tracker')],
     [sg.Button('Capture')],
     [sg.Button('Exit')]
 ]
@@ -98,6 +97,11 @@ window = sg.Window('camera',
             element_justification='c',
             font=("Arial Bold",20),
             finalize=True)
+
+# init oc-sort tracker
+tracker = {}
+for cam_id in device_serials:
+    tracker[cam_id] = OCSort(det_thresh=0.7,iou_threshold=0.5)
 
 
 # start streaming
@@ -328,16 +332,20 @@ while True:
 
         
 
-    # if values['tracker']:
-    #     np_box = np.array(boxes)
-    #     np_score = np.array(confidences).reshape((-1,1))
-    #     np_class = np.array(classes).reshape((-1,1))
-    #     detected_objects = np.concatenate((np_box,np_score,np_class), axis=1)
-    #     tracked_objects = tracker.update(detected_objects)
-    #     for idx,obj in enumerate(tracked_objects):
-    #         x1,y1,x2,y2,tracked_id,cla,conf =  obj
-    #         cv2.rectangle(depth_colormap,(int(x1),int(y1)),(int(x2),int(y2)),color=(255,0,0),thickness=3)
-    #         cv2.putText(depth_colormap,str(tracked_id),(int(x2),int(y2)),thickness=2,fontFace=cv2.FONT_HERSHEY_SIMPLEX,fontScale=3,color=(0,0,255))
+    if values['tracker']:
+        for cam_id, pred in preds.items():
+            boxes = pred[0].boxes.xyxy.tolist() # bounding box of all detected objects
+            classes = pred[0].boxes.cls.tolist()    # class number of all detected objects
+            confidences = pred[0].boxes.conf.tolist()
+            np_box = np.array(boxes)
+            np_score = np.array(confidences).reshape((-1,1))
+            np_class = np.array(classes).reshape((-1,1))
+            detected_objects = np.concatenate((np_box,np_score,np_class), axis=1)
+            tracked_objects = tracker[cam_id].update(detected_objects)
+            for idx,obj in enumerate(tracked_objects):
+                x1,y1,x2,y2,tracked_id,cla,conf =  obj
+                cv2.rectangle(depth_colormaps[cam_id],(int(x1),int(y1)),(int(x2),int(y2)),color=(255,0,0),thickness=3)
+                cv2.putText(depth_colormaps[cam_id],str(tracked_id),(int(x2),int(y2)),thickness=2,fontFace=cv2.FONT_HERSHEY_SIMPLEX,fontScale=3,color=(0,0,255))
 
             
 
